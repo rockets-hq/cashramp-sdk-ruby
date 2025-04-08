@@ -4,7 +4,7 @@ require_relative "lib/cashramp_sdk_ruby/version"
 
 Gem::Specification.new do |spec|
   spec.name = "cashramp_sdk_ruby"
-  spec.version = CashrampSdkRuby::VERSION
+  spec.version = CashrampSDKRuby::VERSION
   spec.authors = ["olawolu"]
   spec.email = ["gbemigaolawolu@gmail.com"]
 
