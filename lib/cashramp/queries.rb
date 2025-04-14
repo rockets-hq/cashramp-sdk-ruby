@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module CashrampSDKRuby
+module Cashramp
   module Client
     class Queries
       AVAILABLE_COUNTRIES = <<~GRAPHQL

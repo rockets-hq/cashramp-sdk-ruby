@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "lib/cashramp_sdk_ruby/version"
+require_relative "lib/cashramp/version"
 
 Gem::Specification.new do |spec|
   spec.name = "cashramp_sdk_ruby"
-  spec.version = CashrampSDKRuby::VERSION
+  spec.version = Cashramp::VERSION
   spec.authors = ["olawolu"]
   spec.email = ["gbemigaolawolu@gmail.com"]
 

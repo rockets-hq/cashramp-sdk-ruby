@@ -1,4 +1,4 @@
-module CashrampSDKRuby
+module Cashramp
   module Client
     class << self
       include HTTParty
