@@ -1,29 +1,29 @@
 require 'spec_helper'
 
-RSpec.describe CashrampSDKRuby::Client do
+RSpec.describe Cashramp::Client do
   describe 'configuration' do
     it 'initializes with test environment' do
-      CashrampSDKRuby::Client.initialize(env: :test, secret_key: 'test_key')
-      expect(CashrampSDKRuby::Client.env).to eq(:test)
-      expect(CashrampSDKRuby::Client.secret_key).to eq('test_key')
+      Cashramp::Client.initialize(env: :test, secret_key: 'test_key')
+      expect(Cashramp::Client.env).to eq(:test)
+      expect(Cashramp::Client.secret_key).to eq('test_key')
     end
 
     it 'raises error with invalid environment' do
       expect {
-        CashrampSDKRuby::Client.initialize(env: :invalid, secret_key: 'test_key')
+        Cashramp::Client.initialize(env: :invalid, secret_key: 'test_key')
       }.to raise_error(ArgumentError, 'Invalid environment')
     end
 
     it 'raises error without secret key' do
       expect {
-        CashrampSDKRuby::Client.initialize(env: :test, secret_key: nil)
+        Cashramp::Client.initialize(env: :test, secret_key: nil)
       }.to raise_error(ArgumentError, 'Please provide your API secret key.')
     end
   end
 
   describe 'API requests' do
     before(:all) do
-      CashrampSDKRuby::Client.initialize(env: :test, secret_key: 'test_key')
+      Cashramp::Client.initialize(env: :test, secret_key: 'test_key')
     end
 
     describe '.send_request' do
@@ -50,7 +50,7 @@ RSpec.describe CashrampSDKRuby::Client do
         let(:response_body) { { data: { test: 'result' } }.to_json }
 
         it 'returns a success response with data' do
-          result = CashrampSDKRuby::Client.send_request(name: name, query: query)
+          result = Cashramp::Client.send_request(name: name, query: query)
           expect(result.success?).to be true
           expect(result.result).to eq('result')
           expect(result.error).to be_nil
@@ -67,7 +67,7 @@ RSpec.describe CashrampSDKRuby::Client do
         end
 
         it 'returns a failure response with error message' do
-          result = CashrampSDKRuby::Client.send_request(name: name, query: query)
+          result = Cashramp::Client.send_request(name: name, query: query)
           expect(result.success?).to be false
           expect(result.error).to eq('GraphQL Error')
         end
@@ -78,7 +78,7 @@ RSpec.describe CashrampSDKRuby::Client do
         let(:response_body) { 'Bad Request' }
 
         it 'returns a failure response with status text' do
-          result = CashrampSDKRuby::Client.send_request(name: name, query: query)
+          result = Cashramp::Client.send_request(name: name, query: query)
           expect(result.success?).to be false
         end
       end
@@ -91,7 +91,7 @@ RSpec.describe CashrampSDKRuby::Client do
         end
 
         it 'returns a failure response with error message' do
-          result = CashrampSDKRuby::Client.send_request(name: name, query: query)
+          result = Cashramp::Client.send_request(name: name, query: query)
           expect(result.success?).to be false
           expect(result.error).to eq('Network error')
         end
@@ -100,84 +100,84 @@ RSpec.describe CashrampSDKRuby::Client do
 
     describe '.available_countries' do
       it 'sends request with correct parameters' do
-        expect(CashrampSDKRuby::Client).to receive(:send_request).with(
+        expect(Cashramp::Client).to receive(:send_request).with(
           name: 'availableCountries',
-          query: CashrampSDKRuby::Client::Queries::AVAILABLE_COUNTRIES
+          query: Cashramp::Client::Queries::AVAILABLE_COUNTRIES
         )
         
-        CashrampSDKRuby::Client.available_countries
+        c = Cashramp::Client.available_countries
       end
     end
 
     describe '.market_rate' do
       it 'sends request with correct parameters' do
         country_code = 'US'
-        expect(CashrampSDKRuby::Client).to receive(:send_request).with(
+        expect(Cashramp::Client).to receive(:send_request).with(
           name: 'marketRate',
-          query: CashrampSDKRuby::Client::Queries::MARKET_RATE,
+          query: Cashramp::Client::Queries::MARKET_RATE,
           variables: { countryCode: country_code }
         )
         
-        CashrampSDKRuby::Client.market_rate(country_code: country_code)
+        Cashramp::Client.market_rate(country_code: country_code)
       end
     end
 
     describe '.payment_method_types' do
       it 'sends request with correct parameters' do
         country_code = 'US'
-        expect(CashrampSDKRuby::Client).to receive(:send_request).with(
+        expect(Cashramp::Client).to receive(:send_request).with(
           name: 'p2pPaymentMethodTypes',
-          query: CashrampSDKRuby::Client::Queries::PAYMENT_METHOD_TYPES,
+          query: Cashramp::Client::Queries::PAYMENT_METHOD_TYPES,
           variables: { countryCode: country_code }
         )
         
-        CashrampSDKRuby::Client.payment_method_types(country_code: country_code)
+        Cashramp::Client.payment_method_types(country_code: country_code)
       end
     end
 
     describe '.rampable_assets' do
       it 'sends request with correct parameters' do
-        expect(CashrampSDKRuby::Client).to receive(:send_request).with(
+        expect(Cashramp::Client).to receive(:send_request).with(
           name: 'rampableAssets',
-          query: CashrampSDKRuby::Client::Queries::RAMPABLE_ASSETS
+          query: Cashramp::Client::Queries::RAMPABLE_ASSETS
         )
         
-        CashrampSDKRuby::Client.rampable_assets
+        Cashramp::Client.rampable_assets
       end
     end
 
     describe '.ramp_limits' do
       it 'sends request with correct parameters' do
-        expect(CashrampSDKRuby::Client).to receive(:send_request).with(
+        expect(Cashramp::Client).to receive(:send_request).with(
           name: 'rampLimits',
-          query: CashrampSDKRuby::Client::Queries::RAMP_LIMITS
+          query: Cashramp::Client::Queries::RAMP_LIMITS
         )
         
-        CashrampSDKRuby::Client.ramp_limits
+        Cashramp::Client.ramp_limits
       end
     end
 
     describe '.payment_request' do
       it 'sends request with correct parameters' do
         reference = 'ref123'
-        expect(CashrampSDKRuby::Client).to receive(:send_request).with(
+        expect(Cashramp::Client).to receive(:send_request).with(
           name: 'merchantPaymentRequest',
-          query: CashrampSDKRuby::Client::Queries::PAYMENT_REQUEST,
+          query: Cashramp::Client::Queries::PAYMENT_REQUEST,
           variables: { reference: reference }
         )
         
-        CashrampSDKRuby::Client.payment_request(reference: reference)
+        Cashramp::Client.payment_request(reference: reference)
       end
     end
 
     describe '.account' do
       it 'sends request with correct parameters' do
-        expect(CashrampSDKRuby::Client).to receive(:send_request).with(
+        expect(Cashramp::Client).to receive(:send_request).with(
           name: 'merchantAccount',
-          query: CashrampSDKRuby::Client::Queries::ACCOUNT,
+          query: Cashramp::Client::Queries::ACCOUNT,
         )
         
-        CashrampSDKRuby::Client.account
+        Cashramp::Client.account
       end
     end
   end
@@ -187,16 +187,16 @@ RSpec.describe CashrampSDKRuby::Client do
       it 'sends request with correct parameters' do
         payment_request = 'pr123'
         transaction_hash = 'tx456'
-        expect(CashrampSDKRuby::Client).to receive(:send_request).with(
+        expect(Cashramp::Client).to receive(:send_request).with(
           name: 'confirmTransaction',
-          query: CashrampSDKRuby::Client::Mutations::CONFIRM_TRANSACTION,
+          query: Cashramp::Client::Mutations::CONFIRM_TRANSACTION,
           variables: { 
             paymentRequest: payment_request, 
             trnasactionHash: transaction_hash 
           }
         )
         
-        CashrampSDKRuby::Client.confirm_transaction(
+        Cashramp::Client.confirm_transaction(
           payment_request: payment_request,
           transaction_hash: transaction_hash
         )
@@ -217,9 +217,9 @@ RSpec.describe CashrampSDKRuby::Client do
           email: 'john@example.com'
         }
 
-        expect(CashrampSDKRuby::Client).to receive(:send_request).with(
+        expect(Cashramp::Client).to receive(:send_request).with(
           name: 'initiateHostedPaymnet',
-          query: CashrampSDKRuby::Client::Mutations::INITIATE_HOSTED_PAYMENT,
+          query: Cashramp::Client::Mutations::INITIATE_HOSTED_PAYMENT,
           variables: {
             amount: payment_params[:amount],
             currency: payment_params[:currency],
@@ -233,20 +233,20 @@ RSpec.describe CashrampSDKRuby::Client do
           }
         )
         
-        CashrampSDKRuby::Client.initiate_hosted_payment(payment_params)
+        Cashramp::Client.initiate_hosted_payment(payment_params)
       end
     end
 
     describe '.cancel_hosted_payment' do
       it 'sends request with correct parameters' do
         payment_request = { id: 'pr123' }
-        expect(CashrampSDKRuby::Client).to receive(:send_request).with(
+        expect(Cashramp::Client).to receive(:send_request).with(
           name: 'cancelHostedPayment',
-          query: CashrampSDKRuby::Client::Mutations::CANCEL_HOSTED_PAYMENT,
+          query: Cashramp::Client::Mutations::CANCEL_HOSTED_PAYMENT,
           variables: payment_request
         )
         
-        CashrampSDKRuby::Client.cancel_hosted_payment(payment_request)
+        Cashramp::Client.cancel_hosted_payment(payment_request)
       end
     end
 
@@ -259,13 +259,13 @@ RSpec.describe CashrampSDKRuby::Client do
           country: 'US'
         }
 
-        expect(CashrampSDKRuby::Client).to receive(:send_request).with(
+        expect(Cashramp::Client).to receive(:send_request).with(
           name: 'createCustomer',
-          query: CashrampSDKRuby::Client::Mutations::CREATE_CUSTOMER,
+          query: Cashramp::Client::Mutations::CREATE_CUSTOMER,
           variables: customer_details
         )
         
-        CashrampSDKRuby::Client.create_customer(customer_details)
+        Cashramp::Client.create_customer(customer_details)
       end
     end
 
@@ -277,13 +277,13 @@ RSpec.describe CashrampSDKRuby::Client do
           fields: [{ name: 'account_number', value: '123456' }]
         }
 
-        expect(CashrampSDKRuby::Client).to receive(:send_request).with(
+        expect(Cashramp::Client).to receive(:send_request).with(
           name: 'addPaymentMethod',
-          query: CashrampSDKRuby::Client::Mutations::ADD_PAYMENT_METHOD,
+          query: Cashramp::Client::Mutations::ADD_PAYMENT_METHOD,
           variables: payment_method_options
         )
         
-        CashrampSDKRuby::Client.add_payment_method(payment_method_options)
+        Cashramp::Client.add_payment_method(payment_method_options)
       end
     end
 
@@ -294,13 +294,13 @@ RSpec.describe CashrampSDKRuby::Client do
           amount_usd: 100
         }
 
-        expect(CashrampSDKRuby::Client).to receive(:send_request).with(
+        expect(Cashramp::Client).to receive(:send_request).with(
           name: 'withdrawOnchain',
-          query: CashrampSDKRuby::Client::Mutations::WITHDRAW_ONCHAIN,
+          query: Cashramp::Client::Mutations::WITHDRAW_ONCHAIN,
           variables: withdraw_options
         )
         
-        CashrampSDKRuby::Client.withdraw_onchain(withdraw_options)
+        Cashramp::Client.withdraw_onchain(withdraw_options)
       end
     end
   end

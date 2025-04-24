@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'bundler/setup'
-require 'cashramp_sdk_ruby'
+require 'cashramp'
 require 'webmock/rspec'
-require 'cashramp_sdk_ruby/queries'
-require 'cashramp_sdk_ruby/mutations'
+require 'cashramp/queries'
+require 'cashramp/mutations'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
