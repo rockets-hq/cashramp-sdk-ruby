@@ -1,3 +1,11 @@
+<p align="center">
+  <a href="https://github.com/rockets-hq/cashramp-sdk-ruby/"><img src="https://github.com/rockets-hq/cashramp-sdk-ruby/actions/workflows/test.yml/badge.svg" /></a>
+  <img alt="Last Commit" src="https://badgen.net/github/last-commit/rockets-hq/cashramp-sdk-ruby" />
+  <img alt="Downloads" src="https://img.shields.io/npm/dt/cashramp.svg"/>
+  <a href="https://github.com/rockets-hq/cashramp-sdk-ruby/"><img src="https://img.shields.io/github/stars/rockets-hq/cashramp-sdk-ruby.svg"/></a>
+  <a href="https://github.com/rockets-hq/cashramp-sdk-ruby/"><img src="https://img.shields.io/npm/l/cashramp.svg"/></a>
+</p>
+
 # Cashramp SDK Ruby
 
 This is the official Ruby gem for [Cashramp's API](https://cashramp.co/commerce).
