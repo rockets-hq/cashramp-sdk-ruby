@@ -214,13 +214,13 @@ module Cashramp
             else
               send_response(success: true, result: result['data'][name])
             end
-        rescue JSON::ParserError
+          rescue JSON::ParserError
             send_response(success: false, error: response.message)
           end
-      else
+        else
           send_response(success: false, error: response.message)
         end
-    rescue HTTParty::Error => e
+      rescue HTTParty::Error => e
         send_response(success: false, error: e.message)
       end
 
@@ -238,6 +238,6 @@ module Cashramp
       def setup
         @endpoint = API_URLS[@env]
       end
+    end
   end
-end
 end
