@@ -83,6 +83,40 @@ module Cashramp
           }
         }
         GRAPHQL
+
+      ONCHAIN_WITHDRAWAL = <<~GRAPHQL
+        query ($withdrawalId: ID!) {
+          onchainWithdrawal(id: $withdrawalId) {
+            quantity
+            symbol
+            network
+            address
+            txhash
+            txhashUrl
+            fee
+            status
+            createdAt
+          }
+        }
+      GRAPHQL
+
+      RAMP_QUOTE = <<~GRAPHQL
+        query ($customerID: ID!, $amount: Decimal!, $currency: P2PPaymentCurrency!, $paymentMethodType: String!) {
+          rampQuote(customer: $customer, amount: $amount, currency: $currency, paymentMethodType: $paymentMethodType) {
+            id
+            exchangeRate
+          }
+        }
+      GRAPHQL
+
+      REFRESH_RAMP_QUOTE = <<~GRAPHQL
+        query ($rampQuote: ID!, $amount: Decimal) {
+          refreshRampQuote(rampQuote: $rampQuote, amount: $amount) {
+            id
+            exchangeRate
+          }
+        }
+      GRAPHQL
     end
   end
 end

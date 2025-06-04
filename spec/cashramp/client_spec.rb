@@ -173,11 +173,55 @@ RSpec.describe Cashramp::Client do
     describe '.account' do
       it 'sends request with correct parameters' do
         expect(Cashramp::Client).to receive(:send_request).with(
-          name: 'merchantAccount',
+          name: 'account',
           query: Cashramp::Client::Queries::ACCOUNT,
         )
         
         Cashramp::Client.account
+      end
+    end
+
+    describe '.onchain_withdrawal' do
+      it 'sends request with correct parameters' do
+        withdrawal_id = 'wd123'
+        expect(Cashramp::Client).to receive(:send_request).with(
+          name: 'onchainWithdrawal',
+          query: Cashramp::Client::Queries::ONCHAIN_WITHDRAWAL,
+          variables: { withdrawalId: withdrawal_id }
+        )
+        
+        Cashramp::Client.onchain_withdrawal(withdrawal_id: withdrawal_id)
+      end
+    end
+
+    describe '.ramp_quote' do
+      it 'sends request with correct parameters' do
+        customer = 'cust123'
+        amount = 100
+        currency = 'usd'
+        payment_method_type = 'bank_transfer'
+        expect(Cashramp::Client).to receive(:send_request).with(
+          name: 'rampQuote',
+          query: Cashramp::Client::Queries::RAMP_QUOTE,
+          variables: { customer: customer, amount: amount, currency: currency, paymentMethodType: payment_method_type }
+        )
+        
+        Cashramp::Client.ramp_quote(customer: customer, amount: amount, currency: currency, payment_method_type: payment_method_type)
+      end
+
+    end
+
+    describe '.refresh_ramp_quote' do
+      it 'sends request with correct parameters' do
+        ramp_quote = 'rq123'
+        amount = 100
+        expect(Cashramp::Client).to receive(:send_request).with(
+          name: 'refreshRampQuote',
+          query: Cashramp::Client::Queries::REFRESH_RAMP_QUOTE,
+          variables: { rampQuote: ramp_quote, amount: amount }
+        )
+        
+        Cashramp::Client.refresh_ramp_quote(ramp_quote: ramp_quote, amount: amount)
       end
     end
   end
@@ -301,6 +345,47 @@ RSpec.describe Cashramp::Client do
         )
         
         Cashramp::Client.withdraw_onchain(withdraw_options)
+      end
+    end
+
+    describe '.initiate_ramp_quote_deposit' do
+      it 'sends request with correct parameters' do
+        ramp_quote = 'rq123'
+        reference = 'ref123'
+        expect(Cashramp::Client).to receive(:send_request).with(
+          name: 'initiateRampQuoteDeposit',
+          query: Cashramp::Client::Mutations::INITIATE_RAMP_QUOTE_DEPOSIT,
+          variables: { rampQuote: ramp_quote, reference: reference }
+        )
+        
+        Cashramp::Client.initiate_ramp_quote_deposit(ramp_quote: ramp_quote, reference: reference)
+      end
+    end
+
+    describe '.mark_deposit_as_paid' do 
+      it 'sends request with correct parameters' do
+        payment_request = 'pr123'
+        receipt = 'receipt123'
+        expect(Cashramp::Client).to receive(:send_request).with(
+          name: 'markDepositAsPaid',
+          query: Cashramp::Client::Mutations::MARK_DEPOSIT_AS_PAID,
+          variables: { paymentRequest: payment_request, receipt: receipt }
+        )
+        
+        Cashramp::Client.mark_deposit_as_paid(payment_request: payment_request, receipt: receipt)
+      end
+    end
+
+    describe '.cancel_deposit' do
+      it 'sends request with correct parameters' do
+        payment_request = 'pr123'
+        expect(Cashramp::Client).to receive(:send_request).with(
+          name: 'cancelDeposit',
+          query: Cashramp::Client::Mutations::CANCEL_DEPOSIT,
+          variables: { paymentRequest: payment_request }
+        )
+        
+        Cashramp::Client.cancel_deposit(payment_request: payment_request)
       end
     end
   end

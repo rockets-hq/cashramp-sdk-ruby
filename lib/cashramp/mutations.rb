@@ -70,6 +70,33 @@ module Cashramp
           }
         }
       GRAPHQL
+
+      INITIATE_RAMP_QUOTE_DEPOSIT = <<~GRAPHQL
+        mutation ($rampQuote: ID!, $reference: String) {
+          initiateRampQuoteDeposit(rampQuote: $rampQuote, reference: $reference) {
+            id
+            status
+            agent
+            paymentDetails
+            exchangeRate
+            amountLocal
+            amountUsd
+            expiresAt
+          }
+        }
+      GRAPHQL
+
+      MARK_DEPOSIT_AS_PAID = <<~GRAPHQL
+        mutation ($paymentRequest: ID!, $receipt: String) {
+          markDepositAsPaid(paymentRequest: $paymentRequest, receipt: $receipt)
+        }
+      GRAPHQL
+
+      CANCEL_DEPOSIT = <<~GRAPHQL
+        mutation ($paymentRequest: ID!) {
+          cancelDeposit(paymentRequest: $paymentRequest)
+        }
+      GRAPHQL
     end
   end
 end
