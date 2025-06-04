@@ -105,7 +105,7 @@ RSpec.describe Cashramp::Client do
           query: Cashramp::Client::Queries::AVAILABLE_COUNTRIES
         )
         
-        c = Cashramp::Client.available_countries
+        Cashramp::Client.available_countries
       end
     end
 
