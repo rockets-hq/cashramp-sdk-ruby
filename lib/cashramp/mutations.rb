@@ -70,6 +70,72 @@ module Cashramp
           }
         }
       GRAPHQL
+
+      REFRESH_RAMP_QUOTE = <<~GRAPHQL
+        mutation ($rampQuote: ID!, $amount: Decimal) {
+          refreshRampQuote(rampQuote: $rampQuote, amount: $amount) {
+            id
+            exchangeRate
+            paymentType
+          }
+        }
+      GRAPHQL
+
+      INITIATE_RAMP_QUOTE_DEPOSIT = <<~GRAPHQL
+        mutation ($rampQuote: ID!, $reference: String, $phoneNumber: String, $bankAccountNumber: String) {
+          initiateRampQuoteDeposit(
+            rampQuote: $rampQuote,
+            reference: $reference,
+            phoneNumber: $phoneNumber,
+            bankAccountNumber: $bankAccountNumber
+          ) {
+            id
+            status
+            agent
+            paymentDetails
+            exchangeRate
+            amountLocal
+            amountUsd
+            expiresAt
+          }
+        }
+      GRAPHQL
+
+      MARK_DEPOSIT_AS_PAID = <<~GRAPHQL
+        mutation ($paymentRequest: ID!, $receipt: String) {
+          markDepositAsPaid(paymentRequest: $paymentRequest, receipt: $receipt)
+        }
+      GRAPHQL
+
+      CANCEL_DEPOSIT = <<~GRAPHQL
+        mutation ($paymentRequest: ID!) {
+          cancelDeposit(paymentRequest: $paymentRequest)
+        }
+      GRAPHQL
+
+      INITIATE_RAMP_QUOTE_WITHDRAWAL = <<~GRAPHQL
+        mutation ($rampQuote: ID!, $paymentMethod: ID!, $reference: String) {
+          initiateRampQuoteWithdrawal(
+            rampQuote: $rampQuote,
+            paymentMethod: $paymentMethod,
+            reference: $reference
+          ) {
+            id
+            status
+            agent
+            paymentDetails
+            exchangeRate
+            amountUsd
+            amountLocal
+          }
+        }
+      GRAPHQL
+
+      MARK_WITHDRAWAL_AS_RECEIVED = <<~GRAPHQL
+        mutation ($paymentRequest: ID!) {
+          markWithdrawalAsReceived(paymentRequest: $paymentRequest)
+        }
+      GRAPHQL
     end
   end
 end

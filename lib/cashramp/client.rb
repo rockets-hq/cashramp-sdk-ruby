@@ -92,7 +92,7 @@ module Cashramp
         send_request(
           name: 'confirmTransaction',
           query: Mutations::CONFIRM_TRANSACTION,
-          variables: { paymentRequest: payment_request, trnasactionHash: transaction_hash }
+          variables: { paymentRequest: payment_request, transactionHash: transaction_hash }
         )
       end
   
@@ -145,6 +145,110 @@ module Cashramp
       # @param [Numeric] :withdraw_options[:amount_usd]
       def withdraw_onchain(withdraw_options)
         send_request(name: 'withdrawOnchain', query: Mutations::WITHDRAW_ONCHAIN, variables: withdraw_options)
+      end
+
+      # Get a ramp quote for currency conversion
+      # @param [String] :customer Global ID of the paying customer
+      # @param [Numeric] :amount Amount to convert
+      # @param [String] :currency 'local_currency' or 'usd'
+      # @param [String] :payment_type 'deposit' or 'withdrawal'
+      # @param [String] :payment_method_type Payment rail identifier (e.g., 'bank_transfer_ng')
+      # @param [String] :country Optional ISO 3166-2 country code
+      def ramp_quote(customer:, amount:, currency:, payment_type:, payment_method_type:, country: nil)
+        send_request(
+          name: 'rampQuote',
+          query: Queries::RAMP_QUOTE,
+          variables: { 
+            customer: customer,
+            amount: amount,
+            currency: currency,
+            paymentType: payment_type,
+            paymentMethodType: payment_method_type,
+            country: country
+          }.compact
+        )
+      end
+
+      # Refresh an existing ramp quote
+      # @param [String] :ramp_quote_id ID of the quote to refresh
+      # @param [Numeric] :amount Optional new amount (keeps original if omitted)
+      def refresh_ramp_quote(ramp_quote_id:, amount: nil)
+        send_request(
+          name: 'refreshRampQuote',
+          query: Mutations::REFRESH_RAMP_QUOTE,
+          variables: { 
+            rampQuote: ramp_quote_id, 
+            amount: amount 
+          }.compact
+        )
+      end
+
+      # Initiate a ramp quote deposit (convert local currency to stablecoins)
+      # @param [String] :ramp_quote_id Quote ID from rampQuote query
+      # @param [String] :reference Optional unique reference for reconciliation
+      # @param [String] :phone_number Customer's phone number if paying via MoMo
+      # @param [String] :bank_account_number Customer's bank account number if paying via bank
+      def initiate_ramp_quote_deposit(ramp_quote_id:, reference: nil, phone_number: nil, bank_account_number: nil)
+        send_request(
+          name: 'initiateRampQuoteDeposit',
+          query: Mutations::INITIATE_RAMP_QUOTE_DEPOSIT,
+          variables: {
+            rampQuote: ramp_quote_id,
+            reference: reference,
+            phoneNumber: phone_number,
+            bankAccountNumber: bank_account_number
+          }.compact
+        )
+      end
+
+      # Mark a deposit as paid by the customer
+      # @param [String] :payment_request_id Deposit request ID
+      # @param [String] :receipt Optional payment proof URL
+      def mark_deposit_as_paid(payment_request_id:, receipt: nil)
+        send_request(
+          name: 'markDepositAsPaid',
+          query: Mutations::MARK_DEPOSIT_AS_PAID,
+          variables: {
+            paymentRequest: payment_request_id,
+            receipt: receipt
+          }.compact
+        )
+      end
+
+      # Cancel an initiated deposit
+      # @param [String] :payment_request_id Deposit request ID to cancel
+      def cancel_deposit(payment_request_id:)
+        send_request(
+          name: 'cancelDeposit',
+          query: Mutations::CANCEL_DEPOSIT,
+          variables: { paymentRequest: payment_request_id }
+        )
+      end
+
+      # Initiate a ramp quote withdrawal (convert stablecoins to local currency)
+      # @param [String] :ramp_quote_id Quote ID from rampQuote query
+      # @param [String] :payment_method_id Customer's payment method ID
+      # @param [String] :reference Optional unique reference for reconciliation
+      def initiate_ramp_quote_withdrawal(ramp_quote_id:, payment_method_id:, reference: nil)
+        send_request(
+          name: 'initiateRampQuoteWithdrawal',
+          query: Mutations::INITIATE_RAMP_QUOTE_WITHDRAWAL,
+          variables: {
+            rampQuote: ramp_quote_id,
+            paymentMethod: payment_method_id,
+            reference: reference
+          }.compact
+        )
+      end
+
+      # Mark a withdrawal as received by the customer
+      # @param [String] :payment_request_id Withdrawal request ID
+      def mark_withdrawal_as_received(payment_request_id:)
+        send_request(
+          name: 'markWithdrawalAsReceived',
+          query: Mutations::MARK_WITHDRAWAL_AS_RECEIVED,
+          variables: { paymentRequest: payment_request_id }
+        )
       end
   
       # Query the Cashramp API directly
