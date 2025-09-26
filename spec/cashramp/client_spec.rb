@@ -29,7 +29,7 @@ RSpec.describe Cashramp::Client do
     describe '.send_request' do
       let(:query) { 'query { test }' }
       let(:name) { 'test' }
-      
+
       before do
         stub_request(:post, "https://api.test.cashramp.com/graphql")
           .with(
@@ -59,8 +59,8 @@ RSpec.describe Cashramp::Client do
 
       context 'when the request returns GraphQL errors' do
         let(:status_code) { 200 }
-        let(:response_body) do 
-          { 
+        let(:response_body) do
+          {
             data: nil,
             errors: [{ message: 'GraphQL Error' }]
           }.to_json
@@ -104,7 +104,7 @@ RSpec.describe Cashramp::Client do
           name: 'availableCountries',
           query: Cashramp::Client::Queries::AVAILABLE_COUNTRIES
         )
-        
+
         c = Cashramp::Client.available_countries
       end
     end
@@ -117,7 +117,7 @@ RSpec.describe Cashramp::Client do
           query: Cashramp::Client::Queries::MARKET_RATE,
           variables: { countryCode: country_code }
         )
-        
+
         Cashramp::Client.market_rate(country_code: country_code)
       end
     end
@@ -130,7 +130,7 @@ RSpec.describe Cashramp::Client do
           query: Cashramp::Client::Queries::PAYMENT_METHOD_TYPES,
           variables: { countryCode: country_code }
         )
-        
+
         Cashramp::Client.payment_method_types(country_code: country_code)
       end
     end
@@ -141,7 +141,7 @@ RSpec.describe Cashramp::Client do
           name: 'rampableAssets',
           query: Cashramp::Client::Queries::RAMPABLE_ASSETS
         )
-        
+
         Cashramp::Client.rampable_assets
       end
     end
@@ -152,7 +152,7 @@ RSpec.describe Cashramp::Client do
           name: 'rampLimits',
           query: Cashramp::Client::Queries::RAMP_LIMITS
         )
-        
+
         Cashramp::Client.ramp_limits
       end
     end
@@ -165,7 +165,7 @@ RSpec.describe Cashramp::Client do
           query: Cashramp::Client::Queries::PAYMENT_REQUEST,
           variables: { reference: reference }
         )
-        
+
         Cashramp::Client.payment_request(reference: reference)
       end
     end
@@ -176,7 +176,7 @@ RSpec.describe Cashramp::Client do
           name: 'merchantAccount',
           query: Cashramp::Client::Queries::ACCOUNT,
         )
-        
+
         Cashramp::Client.account
       end
     end
@@ -190,12 +190,12 @@ RSpec.describe Cashramp::Client do
         expect(Cashramp::Client).to receive(:send_request).with(
           name: 'confirmTransaction',
           query: Cashramp::Client::Mutations::CONFIRM_TRANSACTION,
-          variables: { 
-            paymentRequest: payment_request, 
-            transactionHash: transaction_hash 
+          variables: {
+            paymentRequest: payment_request,
+            transactionHash: transaction_hash
           }
         )
-        
+
         Cashramp::Client.confirm_transaction(
           payment_request: payment_request,
           transaction_hash: transaction_hash
@@ -232,7 +232,7 @@ RSpec.describe Cashramp::Client do
             email: payment_params[:email]
           }
         )
-        
+
         Cashramp::Client.initiate_hosted_payment(payment_params)
       end
     end
@@ -245,7 +245,7 @@ RSpec.describe Cashramp::Client do
           query: Cashramp::Client::Mutations::CANCEL_HOSTED_PAYMENT,
           variables: payment_request
         )
-        
+
         Cashramp::Client.cancel_hosted_payment(payment_request)
       end
     end
@@ -264,7 +264,7 @@ RSpec.describe Cashramp::Client do
           query: Cashramp::Client::Mutations::CREATE_CUSTOMER,
           variables: customer_details
         )
-        
+
         Cashramp::Client.create_customer(customer_details)
       end
     end
@@ -282,7 +282,7 @@ RSpec.describe Cashramp::Client do
           query: Cashramp::Client::Mutations::ADD_PAYMENT_METHOD,
           variables: payment_method_options
         )
-        
+
         Cashramp::Client.add_payment_method(payment_method_options)
       end
     end
@@ -299,7 +299,7 @@ RSpec.describe Cashramp::Client do
           query: Cashramp::Client::Mutations::WITHDRAW_ONCHAIN,
           variables: withdraw_options
         )
-        
+
         Cashramp::Client.withdraw_onchain(withdraw_options)
       end
     end
@@ -318,7 +318,7 @@ RSpec.describe Cashramp::Client do
         expect(Cashramp::Client).to receive(:send_request).with(
           name: 'rampQuote',
           query: Cashramp::Client::Queries::RAMP_QUOTE,
-          variables: { 
+          variables: {
             customer: customer,
             amount: amount,
             currency: currency,
@@ -327,7 +327,7 @@ RSpec.describe Cashramp::Client do
             country: country
           }
         )
-        
+
         Cashramp::Client.ramp_quote(
           customer: customer,
           amount: amount,
@@ -344,12 +344,12 @@ RSpec.describe Cashramp::Client do
         ramp_quote_id = 'quote_id'
         amount = 150.0
 
-        expect(Cashramp::Client).to receive(:send_request).with(
-          name: 'refreshRampQuote',
-          query: Cashramp::Client::Mutations::REFRESH_RAMP_QUOTE,
-          variables: { rampQuote: ramp_quote_id, amount: amount }
-        )
-        
+         expect(Cashramp::Client).to receive(:send_request).with(
+           name: 'refreshRampQuote',
+           query: Cashramp::Client::Queries::REFRESH_RAMP_QUOTE,
+           variables: { rampQuote: ramp_quote_id, amount: amount }
+         )
+
         Cashramp::Client.refresh_ramp_quote(
           ramp_quote_id: ramp_quote_id,
           amount: amount
@@ -374,7 +374,7 @@ RSpec.describe Cashramp::Client do
             bankAccountNumber: bank_account_number
           }
         )
-        
+
         Cashramp::Client.initiate_ramp_quote_deposit(
           ramp_quote_id: ramp_quote_id,
           reference: reference,
@@ -394,7 +394,7 @@ RSpec.describe Cashramp::Client do
           query: Cashramp::Client::Mutations::MARK_DEPOSIT_AS_PAID,
           variables: { paymentRequest: payment_request_id, receipt: receipt }
         )
-        
+
         Cashramp::Client.mark_deposit_as_paid(
           payment_request_id: payment_request_id,
           receipt: receipt
@@ -411,7 +411,7 @@ RSpec.describe Cashramp::Client do
           query: Cashramp::Client::Mutations::CANCEL_DEPOSIT,
           variables: { paymentRequest: payment_request_id }
         )
-        
+
         Cashramp::Client.cancel_deposit(payment_request_id: payment_request_id)
       end
     end
@@ -431,7 +431,7 @@ RSpec.describe Cashramp::Client do
             reference: reference
           }
         )
-        
+
         Cashramp::Client.initiate_ramp_quote_withdrawal(
           ramp_quote_id: ramp_quote_id,
           payment_method_id: payment_method_id,
@@ -449,11 +449,11 @@ RSpec.describe Cashramp::Client do
           query: Cashramp::Client::Mutations::MARK_WITHDRAWAL_AS_RECEIVED,
           variables: { paymentRequest: payment_request_id }
         )
-        
+
         Cashramp::Client.mark_withdrawal_as_received(
           payment_request_id: payment_request_id
         )
       end
     end
   end
-end 
+end

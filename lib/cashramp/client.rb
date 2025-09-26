@@ -172,16 +172,16 @@ module Cashramp
       # Refresh an existing ramp quote
       # @param [String] :ramp_quote_id ID of the quote to refresh
       # @param [Numeric] :amount Optional new amount (keeps original if omitted)
-      def refresh_ramp_quote(ramp_quote_id:, amount: nil)
-        send_request(
-          name: 'refreshRampQuote',
-          query: Mutations::REFRESH_RAMP_QUOTE,
-          variables: { 
-            rampQuote: ramp_quote_id, 
-            amount: amount 
-          }.compact
-        )
-      end
+       def refresh_ramp_quote(ramp_quote_id:, amount: nil)
+         send_request(
+           name: 'refreshRampQuote',
+           query: Queries::REFRESH_RAMP_QUOTE,
+           variables: {
+             rampQuote: ramp_quote_id,
+             amount: amount
+           }.compact
+         )
+       end
 
       # Initiate a ramp quote deposit (convert local currency to stablecoins)
       # @param [String] :ramp_quote_id Quote ID from rampQuote query
