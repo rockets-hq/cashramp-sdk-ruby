@@ -100,6 +100,16 @@ module Cashramp
           }
         }
       GRAPHQL
+
+      REFRESH_RAMP_QUOTE = <<~GRAPHQL
+        query ($rampQuote: ID!, $amount: Decimal) {
+          refreshRampQuote(rampQuote: $rampQuote, amount: $amount) {
+            id
+            exchangeRate
+            paymentType
+          }
+        }
+      GRAPHQL
     end
   end
 end

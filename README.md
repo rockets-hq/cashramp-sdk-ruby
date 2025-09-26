@@ -46,29 +46,29 @@ end
 
 ### Queries
 
-- `getAvailableCountries()`: Fetch the countries that Cashramp is available in
-- `getMarketRate({ countryCode })`: Fetch the Cashramp market rate for a country
-- `getPaymentMethodTypes({ country })`: Fetch the payment method types available in a country
-- `getRampableAssets()`: Fetch the assets you can on/offramp with the Onchain Ramp
-- `getRampLimits()`: Fetch the Onchain Ramp limits
-- `getRampQuote({ customer, amount, currency, paymentType, paymentMethodType, country? })`: Request a new Ramp Quote for a Direct Ramp payment
-- `getPaymentRequest({ reference })`: Fetch the details of a payment request
-- `getAccount()`: Fetch the account information for the authenticated user.
+- `available_countries()`: Fetch the countries that Cashramp is available in
+- `market_rate(country_code:)`: Fetch the Cashramp market rate for a country
+- `payment_method_types(country_code:)`: Fetch the payment method types available in a country
+- `rampable_assets()`: Fetch the assets you can on/offramp with the Onchain Ramp
+- `ramp_limits()`: Fetch the Onchain Ramp limits
+- `ramp_quote(customer:, amount:, currency:, payment_type:, payment_method_type:, country: nil)`: Request a new Ramp Quote for a Direct Ramp payment
+- `refresh_ramp_quote(ramp_quote_id:, amount: nil)`: Refresh a Ramp Quote for a Direct Ramp payment
+- `payment_request(reference:)`: Fetch the details of a payment request
+- `account()`: Fetch the account information for the authenticated user.
 
 ### Mutations
 
-- `confirmTransaction({ paymentRequest, transactionHash })`: Confirm a crypto transfer sent into Cashramp's Secure Escrow address
-- `initiateHostedPayment({ amount, paymentType, countryCode, currency, email, reference, redirectUrl, firstName, lastName })`: Initiate a payment request
-- `cancelHostedPayment({ paymentRequest })`: Cancel an ongoing payment request
-- `createCustomer({ firstName, lastName, email, country })`: Create a new customer profile
-- `addPaymentMethod({ customer, paymentMethodType, fields })`: Add a payment method for an existing customer
-- `withdrawOnchain({ address, amountUsd })`:  Withdraw from your balance to an onchain wallet address
-- `refreshRampQuote({ rampQuote, amount })`: Refresh a Ramp Quote for a Direct Ramp payment
-- `initiateRampQuoteDeposit({ rampQuote, reference?, phoneNumber?, bankAccountNumber? })`: Initiate a Ramp Quote deposit
-- `initiateRampQuoteWithdrawal({ rampQuote, paymentMethod, reference? })`: Initiate a Ramp Quote withdrawal
-- `markDepositAsPaid({ paymentRequest, receipt })`: Mark a deposit payment request as paid
-- `cancelDeposit({ paymentRequest })`: Cancel a deposit payment request
-- `markWithdrawalAsReceived({ paymentRequest })`: Mark a withdrawal payment request as received
+- `confirm_transaction(payment_request:, transaction_hash:)`: Confirm a crypto transfer sent into Cashramp's Secure Escrow address
+- `initiate_hosted_payment(payment_params = {})`: Initiate a payment request
+- `cancel_hosted_payment(payment_request = {})`: Cancel an ongoing payment request
+- `create_customer(customer_details = {})`: Create a new customer profile
+- `add_payment_method(payment_method_options = {})`: Add a payment method for an existing customer
+- `withdraw_onchain(withdraw_options)`: Withdraw from your balance to an onchain wallet address
+- `initiate_ramp_quote_deposit(ramp_quote_id:, reference: nil, phone_number: nil, bank_account_number: nil)`: Initiate a Ramp Quote deposit
+- `initiate_ramp_quote_withdrawal(ramp_quote_id:, payment_method_id:, reference: nil)`: Initiate a Ramp Quote withdrawal
+- `mark_deposit_as_paid(payment_request_id:, receipt: nil)`: Mark a deposit payment request as paid
+- `cancel_deposit(payment_request_id:)`: Cancel a deposit payment request
+- `mark_withdrawal_as_received(payment_request_id:)`: Mark a withdrawal payment request as received
 
 ## Custom Queries
 

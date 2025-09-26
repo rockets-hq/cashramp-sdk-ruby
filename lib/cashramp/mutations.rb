@@ -6,7 +6,7 @@ module Cashramp
           confirmTransaction(paymentRequest: $paymentRequest, transactionHash: $transactionHash)
         }
       GRAPHQL
-  
+
       INITIATE_HOSTED_PAYMENT = <<~GRAPHQL
         mutation ($amount: Decimal!, $currency: P2PPaymentCurrency, $countryCode: String!, $email: String!, $paymentType: P2PPaymentTypeType!, $reference: String!, $firstName: String!, $lastName: String!, $redirectUrl: String) {
           initiateHostedPayment(
@@ -26,13 +26,13 @@ module Cashramp
             }
         }
       GRAPHQL
-  
+
       CANCEL_HOSTED_PAYMENT = <<~GRAPHQL
         mutation ($paymentRequest: ID!) {
           cancelHostedPayment(paymentRequest: $paymentRequest)
         }
       GRAPHQL
-  
+
       CREATE_CUSTOMER = <<~GRAPHQL
         mutation ($email: String!, $firstName: String!, $lastName: String!, $country: ID!) {
           createCustomer(email: $email, firstName: $firstName, lastName: $lastName, country: $country) {
@@ -48,7 +48,7 @@ module Cashramp
           }
         }
       GRAPHQL
-  
+
       ADD_PAYMENT_METHOD = <<~GRAPHQL
         mutation ($customer: ID!, $paymentMethodType: ID!, $fields: [P2PPaymentMethodFieldInput!]!) {
           addPaymentMethod(customer: $customer, p2pPaymentMethodType: $paymentMethodType, fields: $fields) {
@@ -61,7 +61,7 @@ module Cashramp
           }
         }
       GRAPHQL
-  
+
       WITHDRAW_ONCHAIN = <<~GRAPHQL
         mutation ($address: String!, $amountUsd: Decimal!) {
           withdrawOnchain(address: $address, amountUsd: $amountUsd) {
@@ -71,15 +71,7 @@ module Cashramp
         }
       GRAPHQL
 
-      REFRESH_RAMP_QUOTE = <<~GRAPHQL
-        mutation ($rampQuote: ID!, $amount: Decimal) {
-          refreshRampQuote(rampQuote: $rampQuote, amount: $amount) {
-            id
-            exchangeRate
-            paymentType
-          }
-        }
-      GRAPHQL
+
 
       INITIATE_RAMP_QUOTE_DEPOSIT = <<~GRAPHQL
         mutation ($rampQuote: ID!, $reference: String, $phoneNumber: String, $bankAccountNumber: String) {
