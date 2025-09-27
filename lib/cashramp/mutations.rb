@@ -71,8 +71,6 @@ module Cashramp
         }
       GRAPHQL
 
-
-
       INITIATE_RAMP_QUOTE_DEPOSIT = <<~GRAPHQL
         mutation ($rampQuote: ID!, $reference: String, $phoneNumber: String, $bankAccountNumber: String) {
           initiateRampQuoteDeposit(
