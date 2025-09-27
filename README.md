@@ -46,15 +46,15 @@ end
 
 ### Queries
 
-- `available_countries()`: Fetch the countries that Cashramp is available in
+- `available_countries`: Fetch the countries that Cashramp is available in
 - `market_rate(country_code:)`: Fetch the Cashramp market rate for a country
 - `payment_method_types(country_code:)`: Fetch the payment method types available in a country
-- `rampable_assets()`: Fetch the assets you can on/offramp with the Onchain Ramp
-- `ramp_limits()`: Fetch the Onchain Ramp limits
+- `rampable_assets`: Fetch the assets you can on/offramp with the Onchain Ramp
+- `ramp_limits`: Fetch the Onchain Ramp limits
 - `ramp_quote(customer:, amount:, currency:, payment_type:, payment_method_type:, country: nil)`: Request a new Ramp Quote for a Direct Ramp payment
 - `refresh_ramp_quote(ramp_quote_id:, amount: nil)`: Refresh a Ramp Quote for a Direct Ramp payment
 - `payment_request(reference:)`: Fetch the details of a payment request
-- `account()`: Fetch the account information for the authenticated user.
+- `account`: Fetch the account information for the authenticated user.
 
 ### Mutations
 
