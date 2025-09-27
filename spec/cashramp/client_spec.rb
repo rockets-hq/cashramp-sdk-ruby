@@ -31,7 +31,7 @@ RSpec.describe Cashramp::Client do
       let(:name) { 'test' }
 
       before do
-        stub_request(:post, "https://api.test.cashramp.com/graphql")
+        stub_request(:post, "https://staging.api.useaccrue.com/cashramp/api/graphql")
           .with(
             body: {
               query: query,
