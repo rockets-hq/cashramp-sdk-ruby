@@ -11,7 +11,7 @@ module Cashramp
       })
   
       API_URLS = {
-        live: 'https://api.cashramp.com/graphql',
+        live: 'https://api.useaccrue.com/cashramp/api/graphql',
         test: 'https://staging.api.useaccrue.com/cashramp/api/graphql'
       }.freeze
   
