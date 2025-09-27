@@ -12,7 +12,7 @@ module Cashramp
   
       API_URLS = {
         live: 'https://api.cashramp.com/graphql',
-        test: 'https://api.test.cashramp.com/graphql'
+        test: 'https://staging.api.useaccrue.com/cashramp/api/graphql'
       }.freeze
   
       Response = Struct.new(:success?, :result, :error)
