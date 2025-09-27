@@ -48,7 +48,7 @@ module Cashramp
         send_request(
           name: 'p2pPaymentMethodTypes',
           query: Queries::PAYMENT_METHOD_TYPES,
-          variables: { countryCode: country_code }
+          variables: { country: country_code }
         )
       end
   
