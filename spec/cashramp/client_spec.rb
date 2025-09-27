@@ -128,7 +128,7 @@ RSpec.describe Cashramp::Client do
         expect(Cashramp::Client).to receive(:send_request).with(
           name: 'p2pPaymentMethodTypes',
           query: Cashramp::Client::Queries::PAYMENT_METHOD_TYPES,
-          variables: { countryCode: country_code }
+          variables: { country: country_code }
         )
 
         Cashramp::Client.payment_method_types(country_code: country_code)
