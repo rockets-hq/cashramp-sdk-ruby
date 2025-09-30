@@ -63,8 +63,8 @@ module Cashramp
       GRAPHQL
 
       WITHDRAW_ONCHAIN = <<~GRAPHQL
-        mutation ($address: String!, $amountUsd: Decimal!) {
-          withdrawOnchain(address: $address, amountUsd: $amountUsd) {
+        mutation ($address: String!, $amountUsd: Decimal!, $network: String, $metadata: JSON) {
+          withdrawOnchain(address: $address, amountUsd: $amountUsd, network: $network, metadata: $metadata) {
             id
             status
           }

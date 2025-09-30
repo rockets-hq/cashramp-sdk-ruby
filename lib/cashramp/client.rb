@@ -17,12 +17,14 @@ module Cashramp
 
       Response = Struct.new(:success?, :result, :error)
 
-      def initialize(env:, secret_key:)
-        @env = env || ENV["CASHRAMP_ENV"] || :live
+      def initialize(env: nil, secret_key: nil)
+        @env = (env || ENV["CASHRAMP_ENV"] || :live).to_sym
         @secret_key = secret_key || ENV["CASHRAMP_SECRET_KEY"]
 
         validate_configuration!
         setup
+
+        self
       end
 
       # ------- QUERIES -------
@@ -222,8 +224,8 @@ module Cashramp
       # @param [Numeric] amount_usd Amount to withdraw in USD
       # @return [Response] Response object with success status and result containing withdrawal details
       # @return [Hash] result.withdrawal Object with id and status
-      def withdraw_onchain(address:, amount_usd:)
-        send_request(name: "withdrawOnchain", query: Mutations::WITHDRAW_ONCHAIN, variables: { address: address, amountUsd: amount_usd })
+      def withdraw_onchain(address:, amount_usd:, network: nil, metadata: nil)
+        send_request(name: "withdrawOnchain", query: Mutations::WITHDRAW_ONCHAIN, variables: { address: address, amountUsd: amount_usd, network: network, metadata: metadata })
       end
 
       # Initiate a ramp quote deposit (convert local currency to stablecoins)
