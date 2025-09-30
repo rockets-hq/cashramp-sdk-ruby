@@ -131,7 +131,7 @@ RSpec.describe Cashramp::Client do
           variables: { country: country_code }
         )
 
-        Cashramp::Client.payment_method_types(country_code: country_code)
+        Cashramp::Client.payment_method_types(country: country_code)
       end
     end
 
@@ -173,7 +173,7 @@ RSpec.describe Cashramp::Client do
     describe '.account' do
       it 'sends request with correct parameters' do
         expect(Cashramp::Client).to receive(:send_request).with(
-          name: 'merchantAccount',
+          name: 'account',
           query: Cashramp::Client::Queries::ACCOUNT,
         )
 
@@ -218,7 +218,7 @@ RSpec.describe Cashramp::Client do
         }
 
         expect(Cashramp::Client).to receive(:send_request).with(
-          name: 'initiateHostedPaymnet',
+          name: 'initiateHostedPayment',
           query: Cashramp::Client::Mutations::INITIATE_HOSTED_PAYMENT,
           variables: {
             amount: payment_params[:amount],
@@ -233,20 +233,20 @@ RSpec.describe Cashramp::Client do
           }
         )
 
-        Cashramp::Client.initiate_hosted_payment(payment_params)
+        Cashramp::Client.initiate_hosted_payment(**payment_params)
       end
     end
 
     describe '.cancel_hosted_payment' do
       it 'sends request with correct parameters' do
-        payment_request = { id: 'pr123' }
+        payment_request_id = 'pr123'
         expect(Cashramp::Client).to receive(:send_request).with(
           name: 'cancelHostedPayment',
           query: Cashramp::Client::Mutations::CANCEL_HOSTED_PAYMENT,
-          variables: payment_request
+          variables: { paymentRequest: payment_request_id }
         )
 
-        Cashramp::Client.cancel_hosted_payment(payment_request)
+        Cashramp::Client.cancel_hosted_payment(payment_request_id: payment_request_id)
       end
     end
 
@@ -262,10 +262,10 @@ RSpec.describe Cashramp::Client do
         expect(Cashramp::Client).to receive(:send_request).with(
           name: 'createCustomer',
           query: Cashramp::Client::Mutations::CREATE_CUSTOMER,
-          variables: customer_details
+          variables: { firstName: 'John', lastName: 'Doe', email: 'john@example.com', country: 'US' }
         )
 
-        Cashramp::Client.create_customer(customer_details)
+        Cashramp::Client.create_customer(**customer_details)
       end
     end
 
@@ -273,17 +273,17 @@ RSpec.describe Cashramp::Client do
       it 'sends request with correct parameters' do
         payment_method_options = {
           customer: 'cust123',
-          p2p_payment_method_type: 'bank_transfer',
+          payment_method_type: 'bank_transfer',
           fields: [{ name: 'account_number', value: '123456' }]
         }
 
         expect(Cashramp::Client).to receive(:send_request).with(
           name: 'addPaymentMethod',
           query: Cashramp::Client::Mutations::ADD_PAYMENT_METHOD,
-          variables: payment_method_options
+          variables: { customer: 'cust123', paymentMethodType: 'bank_transfer', fields: [{ name: 'account_number', value: '123456' }] }
         )
 
-        Cashramp::Client.add_payment_method(payment_method_options)
+        Cashramp::Client.add_payment_method(**payment_method_options)
       end
     end
 
@@ -297,10 +297,10 @@ RSpec.describe Cashramp::Client do
         expect(Cashramp::Client).to receive(:send_request).with(
           name: 'withdrawOnchain',
           query: Cashramp::Client::Mutations::WITHDRAW_ONCHAIN,
-          variables: withdraw_options
+          variables: { address: '0x123...', amountUsd: 100, network: nil, metadata: nil }
         )
 
-        Cashramp::Client.withdraw_onchain(withdraw_options)
+        Cashramp::Client.withdraw_onchain(**withdraw_options)
       end
     end
   end
