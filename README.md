@@ -7,8 +7,6 @@
 
 The official Ruby SDK for [Cashramp's API](https://cashramp.co/commerce).
 
-- [Documentation](https://docs.cashramp.co)
-
 ## Installation
 
 ### From GitHub (Recommended)
