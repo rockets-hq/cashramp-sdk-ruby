@@ -234,11 +234,30 @@ response = client.confirm_transaction(
 Initiate a hosted payment request
 
 ```ruby
-
-# Returns hosted payment object
+response = client.initiate_hosted_payment(
+  amount: 100.0,
+  currency: "usd",
+  country_code: "NG",
+  payment_type: "deposit",
+  reference: "unique_ref_123",
+  redirect_url: "https://yourapp.com/callback",
+  first_name: "Gabriel",
+  last_name: "Okocha",
+  email: "gabby@example.com"
+)
+# Returns: Payment request object with id, hostedLink, and status
 ```
 
 #### `cancel_hosted_payment(payment_request_id:)`
+
+Cancel a hosted payment request.
+
+```ruby
+response = client.cancel_hosted_payment(
+  payment_request_id: "payment_request_id"
+)
+# Returns: Cancellation confirmation response
+```
 
 #### `create_customer(first_name:, last_name:, email:, country:)`
 
@@ -298,7 +317,26 @@ response = client.initiate_ramp_quote_deposit(
 
 #### `mark_deposit_as_paid(payment_request_id:, receipt: nil)`
 
+Mark a deposit as paid by the customer.
+
+```ruby
+response = client.mark_deposit_as_paid(
+  payment_request_id: "payment_request_id",
+  receipt: "https://example.com/receipt.jpg"
+)
+# Returns: Payment confirmation response
+```
+
 #### `cancel_deposit(payment_request_id:)`
+
+Cancel an initiated deposit.
+
+```ruby
+response = client.cancel_deposit(
+  payment_request_id: "payment_request_id"
+)
+# Returns: Cancellation confirmation response
+```
 
 #### `initiate_ramp_quote_withdrawal(ramp_quote_id:, payment_method_id:, reference: nil)`
 
@@ -314,6 +352,15 @@ response = client.initiate_ramp_quote_withdrawal(
 ```
 
 #### `mark_withdrawal_as_received(payment_request_id)`
+
+Mark a withdrawal as received by the customer.
+
+```ruby
+response = client.mark_withdrawal_as_received(
+  payment_request_id: "payment_request_id"
+)
+# Returns: Withdrawal confirmation response
+```
 
 ## Advanced Usage
 
