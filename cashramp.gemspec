@@ -5,11 +5,13 @@ require_relative "lib/cashramp/version"
 Gem::Specification.new do |spec|
   spec.name = "cashramp_sdk_ruby"
   spec.version = Cashramp::VERSION
-  spec.authors = ["olawolu"]
-  spec.email = ["gbemigaolawolu@gmail.com"]
+  spec.authors = ["Cashramp"]
+  spec.email = ["support@useaccrue.com"]
 
-  spec.summary = "The official Ruby SDK for Cashramp's API"
-  spec.description = "The official Ruby SDK for Cashramp's API"
+  spec.summary = "Official Ruby SDK for the Cashramp API."
+  spec.description = "Ruby client for the Cashramp API (https://cashramp.co/commerce). " \
+                     "Supports Hosted Payments, Direct Ramp deposits and withdrawals, " \
+                     "onchain stablecoin delivery, and Cashramp's full GraphQL surface."
   spec.homepage = "https://github.com/rockets-hq/cashramp-sdk-ruby"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"
@@ -18,6 +20,8 @@ Gem::Specification.new do |spec|
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/rockets-hq/cashramp-sdk-ruby"
+  spec.metadata["changelog_uri"] = "https://github.com/rockets-hq/cashramp-sdk-ruby/blob/main/CHANGELOG.md"
+  spec.metadata["documentation_uri"] = "https://docs.cashramp.co"
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
@@ -32,9 +36,5 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  # Uncomment to register a new dependency of your gem
-  # spec.add_dependency "example-gem", "~> 1.0"
-
-  # For more information and examples about making a new gem, check out our
-  # guide at: https://bundler.io/guides/creating_gem.html
+  spec.add_dependency "httparty", "~> 0.21"
 end

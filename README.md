@@ -3,462 +3,310 @@
 <a href="https://github.com/rockets-hq/cashramp-sdk-ruby/"><img src="https://github.com/rockets-hq/cashramp-sdk-ruby/actions/workflows/test.yml/badge.svg" /></a>
 <img alt="Last Commit" src="https://badgen.net/github/last-commit/rockets-hq/cashramp-sdk-ruby" />
 <a href="https://github.com/rockets-hq/cashramp-sdk-ruby/"><img src="https://img.shields.io/github/stars/rockets-hq/cashramp-sdk-ruby.svg"/></a>
-<a href="https://github.com/rockets-hq/cashramp-sdk-ruby/"><img src="https://img.shields.io/npm/l/cashramp.svg"/></a>
+<a href="https://github.com/rockets-hq/cashramp-sdk-ruby/blob/main/LICENSE.txt"><img src="https://img.shields.io/badge/license-MIT-blue.svg"/></a>
 
 The official Ruby SDK for [Cashramp's API](https://cashramp.co/commerce).
 
-## Installation
+## Table of Contents
 
-### From GitHub (Recommended)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Usage Examples](#usage-examples)
+  - [Hosted Payments](#hosted-payments)
+  - [Direct Ramp - Deposits](#direct-ramp---deposits)
+  - [Direct Ramp - Withdrawals](#direct-ramp---withdrawals)
+- [API Reference](#api-reference)
+- [Custom Queries](#custom-queries)
+- [Error Handling](#error-handling)
+
+## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "cashramp_sdk_ruby", git: "https://github.com/rockets-hq/cashramp-sdk-ruby.git"
+gem "cashramp_sdk_ruby"
 ```
 
-Then execute:
+And then run:
 
 ```bash
 bundle install
 ```
 
-### Direct Installation
-
-If you're not using Bundler, you can install directly from GitHub:
+Or install it directly with:
 
 ```bash
-gem install specific_install
-gem specific_install https://github.com/rockets-hq/cashramp-sdk-ruby.git
+gem install cashramp_sdk_ruby
 ```
 
 ## Quick Start
 
-### 1. Initialize the Client
-
 ```ruby
 require "cashramp"
 
-# Initialize with your API credentials
-client = Cashramp::Client.initialize(
-  env: :test,  # or :live for production
-  secret_key: "your_secret_key_here"
+Cashramp::Client.initialize(
+  env: :test, # :test for sandbox, :live for production
+  secret_key: "CSHRMP-SECK_your_secret_key",
 )
 ```
 
-### 2. Basic Usage Examples
+You can also configure via environment variables:
 
-#### Check Available Countries
-
-```ruby
-response = client.available_countries
-if response.success?
-  puts "Available countries: #{response.result}"
-else
-  puts "Error: #{response.error}"
-end
+```bash
+export CASHRAMP_ENV=test
+export CASHRAMP_SECRET_KEY=CSHRMP-SECK_your_secret_key
 ```
 
-#### Get Market Rates
-
 ```ruby
-response = client.market_rate(country_code: "NG")
-if response.success?
-  rates = response.result
-  puts "Deposit rate: #{rates['depositRate']}"
-  puts "Withdrawal rate: #{rates['withdrawalRate']}"
-end
+Cashramp::Client.initialize
 ```
 
-#### Create a Customer
+## Usage Examples
+
+### Hosted Payments
+
+Hosted payments redirect users to Cashramp's hosted page to complete transactions.
 
 ```ruby
-customer_data = {
-  email: "customer@example.com",
+deposit = Cashramp::Client.initiate_hosted_payment(
+  amount: 100,
+  currency: "usd", # "usd" or "local_currency"
+  country_code: "GH",
+  payment_type: "deposit",
+  reference: "order_123",
   first_name: "John",
   last_name: "Doe",
-  country_code: "US"
-}
+  email: "john@example.com",
+  redirect_url: "https://yoursite.com/callback",
+  metadata: { order_id: "order_123", user_id: "user_42" },
+)
 
-response = client.create_customer(customer_data)
-if response.success?
-  puts "Customer created: #{response.result}"
+if deposit.success?
+  # Redirect the user to the hosted page
+  puts deposit.result["hostedLink"]
 else
-  puts "Error creating customer: #{response.error}"
+  puts "Error: #{deposit.error}"
 end
 ```
 
-#### Request a Ramp Quote
+### Direct Ramp - Deposits
+
+Direct Ramp gives you full control over the payment UI. Users pay fiat and receive stablecoins.
 
 ```ruby
-quote_params = {
-  customer: "customer_id",
-  amount: 100.0,
+# Step 1: Create a customer
+customer = Cashramp::Client.create_customer(
+  first_name: "John",
+  last_name: "Doe",
+  email: "john@example.com",
+  country: "country_global_id", # from Cashramp::Client.available_countries
+)
+
+# Step 2: Get a quote
+quote = Cashramp::Client.ramp_quote(
+  customer: customer.result["id"],
+  amount: 100,
   currency: "usd",
   payment_type: "deposit",
-  payment_method_type: "mtn_momo_gh",
-  country: "GH"
-}
+  payment_method_type: "mobile_money", # from Cashramp::Client.payment_method_types
+)
 
-response = client.ramp_quote(quote_params)
-if response.success?
-  quote = response.result
+# Step 3: Initiate the deposit
+deposit = Cashramp::Client.initiate_ramp_quote_deposit(
+  ramp_quote_id: quote.result["id"],
+  reference: "order_123",
+  phone_number: "+233123456789", # for mobile money
+)
+
+if deposit.success?
+  puts deposit.result["paymentDetails"]
+  puts deposit.result["expiresAt"]
 end
+
+# Step 4: Mark as paid (after the user confirms payment)
+Cashramp::Client.mark_deposit_as_paid(
+  payment_request_id: deposit.result["id"],
+  receipt: "https://example.com/receipt.png",
+)
+```
+
+#### Receiving Stablecoins Onchain
+
+To deliver stablecoins directly to a wallet address instead of your Cashramp Merchant Dashboard balance:
+
+```ruby
+deposit = Cashramp::Client.initiate_ramp_quote_deposit(
+  ramp_quote_id: quote.result["id"],
+  reference: "order_123",
+  onchain_transfer_info: {
+    address: "0x1234567890abcdef1234567890abcdef12345678",
+    cryptocurrency: "usd_tether", # from Cashramp::Client.rampable_assets
+    network: "celo", # from Cashramp::Client.rampable_assets
+  },
+)
+```
+
+### Direct Ramp - Withdrawals
+
+Users receive fiat to their bank/mobile money in exchange for stablecoins.
+
+```ruby
+# Step 1: Create the customer (if not already done)
+customer = Cashramp::Client.create_customer(
+  first_name: "John",
+  last_name: "Doe",
+  email: "john@example.com",
+  country: "country_global_id",
+)
+
+# Step 2: Add a payment method for the customer
+payment_method = Cashramp::Client.add_payment_method(
+  customer: customer.result["id"],
+  payment_method_type: "bank_transfer",
+  fields: [
+    { identifier: "account_number", value: "1234567890" },
+    { identifier: "bank_name",      value: "Example Bank" },
+  ],
+  ownership: "first_party", # optional: "first_party" or "third_party"
+)
+
+# Step 3: Get a quote
+quote = Cashramp::Client.ramp_quote(
+  customer: customer.result["id"],
+  amount: 50,
+  currency: "usd",
+  payment_type: "withdrawal",
+  payment_method_type: "bank_transfer",
+)
+
+# Step 4: Initiate the withdrawal
+withdrawal = Cashramp::Client.initiate_ramp_quote_withdrawal(
+  ramp_quote_id: quote.result["id"],
+  payment_method_id: payment_method.result["id"],
+  reference: "withdrawal_456",
+)
+
+# Step 5: Mark as received (after the user confirms receipt)
+Cashramp::Client.mark_withdrawal_as_received(
+  payment_request_id: withdrawal.result["id"],
+)
 ```
 
 ## API Reference
 
-### Configuration
+### Queries
 
-#### Environment Variables
+| Method                                                                                  | Description                                                |
+| --------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `available_countries`                                                                   | Fetch the countries Cashramp operates in                   |
+| `market_rate(country_code:)`                                                            | Current deposit/withdrawal rates for a country             |
+| `payment_method_types(country:)`                                                        | Available payment methods for a country (global ID)        |
+| `rampable_assets`                                                                       | Supported cryptocurrencies and networks                    |
+| `ramp_limits`                                                                           | Min/max transaction limits                                 |
+| `ramp_quote(customer:, amount:, currency:, payment_method_type:, payment_type:, country:)` | Request a Direct Ramp quote (`payment_type` defaults to `"deposit"`) |
+| `refresh_ramp_quote(ramp_quote_id:, amount:)`                                           | Refresh an existing quote                                  |
+| `payment_request(reference:)`                                                           | Fetch a payment request by reference                       |
+| `account`                                                                               | Account balance and deposit address                        |
 
-You can also configure the SDK using environment variables:
+### Mutations
 
-```ruby
-# Set these in your environment or .env file
-ENV["CASHRAMP_ENV"] = "test"  # or "live"
-ENV["CASHRAMP_SECRET_KEY"] = "your_secret_key_here"
+#### Hosted Payments
 
-# Then initialize without parameters
-client = Cashramp::Client.initialize
-```
+| Method                                                                                                                                              | Description                  |
+| --------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| `initiate_hosted_payment(amount:, country_code:, payment_type:, first_name:, last_name:, email:, currency:, reference:, redirect_url:, metadata:)`  | Start a hosted payment       |
+| `cancel_hosted_payment(payment_request_id:)`                                                                                                        | Cancel a hosted payment      |
 
-### Query Methods
+#### Customer Management
 
-#### `available_countries`
+| Method                                                                                       | Description                              |
+| -------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| `create_customer(first_name:, last_name:, email:, country:)`                                 | Create a new customer profile            |
+| `add_payment_method(customer:, payment_method_type:, fields:, ownership:)`                   | Add a payment method to a customer       |
 
-Fetch the countries where Cashramp services are available.
+#### Direct Ramp - Deposits
 
-```ruby
-response = client.available_countries
-# Returns: Array of country objects with id, name, and code
-```
+| Method                                                                                                                            | Description                       |
+| --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| `initiate_ramp_quote_deposit(ramp_quote_id:, reference:, phone_number:, bank_account_number:, onchain_transfer_info:)`            | Start a deposit from a quote      |
+| `mark_deposit_as_paid(payment_request_id:, receipt:)`                                                                             | Confirm the user paid             |
+| `cancel_deposit(payment_request_id:)`                                                                                             | Cancel a deposit                  |
 
-#### `market_rate(country_code:)`
+#### Direct Ramp - Withdrawals
 
-Get current market rates for deposits and withdrawals in a specific country.
+| Method                                                                                       | Description                       |
+| -------------------------------------------------------------------------------------------- | --------------------------------- |
+| `initiate_ramp_quote_withdrawal(ramp_quote_id:, payment_method_id:, reference:)`             | Start a withdrawal from a quote   |
+| `mark_withdrawal_as_received(payment_request_id:)`                                           | Confirm the user received funds   |
 
-```ruby
-response = client.market_rate(country_code: "NG")
-# Returns: Hash with depositRate and withdrawalRate
-```
+#### Other
 
-#### `payment_method_types(country:)`
+| Method                                                                  | Description                          |
+| ----------------------------------------------------------------------- | ------------------------------------ |
+| `confirm_transaction(payment_request:, transaction_hash:)`              | Confirm crypto transfer to escrow    |
+| `withdraw_onchain(address:, amount_usd:, network:, metadata:)`          | Withdraw from balance to a wallet    |
 
-Get available payment methods for a specific country.
+#### `onchain_transfer_info` Hash
 
-```ruby
-response = client.payment_method_types(country: "country_id")
-# Returns: Array of payment method types available in the country
-```
+Used in `initiate_ramp_quote_deposit` to deliver stablecoins onchain:
 
-#### `rampable_assets`
+| Key              | Type   | Description                           |
+| ---------------- | ------ | ------------------------------------- |
+| `:address`       | String | Destination wallet address            |
+| `:cryptocurrency`| String | e.g. `"usd_tether"`, `"usd_coin"`     |
+| `:network`       | String | e.g. `"celo"`, `"polygon"`, `"base"`  |
 
-Fetch all assets available for on/off-ramping.
+## Custom Queries
 
-```ruby
-response = client.rampable_assets
-# Returns: Array of supported cryptocurrency assets
-```
-
-#### `ramp_limits`
-
-Get current limits for on/off-ramping operations.
-
-```ruby
-response = client.ramp_limits
-# Returns: Hash with minimum and maximum limits
-```
-
-#### `payment_request(reference:)`
-
-Fetch details of a specific payment request.
-
-```ruby
-response = client.payment_request(reference: "payment_ref")
-# Returns: Payment request details
-```
-
-#### `account`
-
-Get account information for the authenticated user.
+For advanced use cases, use `send_request` to execute custom GraphQL queries:
 
 ```ruby
-response = client.account
-# Returns: Account details and balance information
-```
-
-#### `ramp_quote(customer:, amount:, currency:, payment_type:, payment_method_type:, country: nil)`
-
-Request a quote for a Direct Ramp transaction.
-
-```ruby
-response = client.ramp_quote(
-  customer: "customer_id",
-  amount: 100.0,
-  currency: "usd",
-  payment_type: "deposit",
-  payment_method_type: "bank_transfer_ng",
-  country: "NG"
-)
-# Returns: Quote object with pricing and transaction details
-```
-
-#### `refresh_ramp_quote(ramp_quote_id:, amount: nil)`
-
-Refresh an existing Ramp Quote.
-
-```ruby
-response = client.refresh_ramp_quote(ramp_quote_id: "quote_id", amount: 150.0)
-# Returns: Updated quote object
-```
-
-### Mutation Methods
-
-#### `confirm_transaction(payment_request:, transaction_hash:)`
-
-Confirm a cryptocurrency transaction sent to Cashramp's escrow address.
-
-```ruby
-response = client.confirm_transaction(
-  payment_request: "payment_request_id",
-  transaction_hash: "0x..."
-)
-# Returns: Transaction confirmation response
-```
-
-#### `initiate_hosted_payment(amount:, currency:, country_code:, payment_type:, reference:, redirect_url:, first_name:, last_name:, email:)`
-
-Initiate a hosted payment request
-
-```ruby
-response = client.initiate_hosted_payment(
-  amount: 100.0,
-  currency: "usd",
-  country_code: "NG",
-  payment_type: "deposit",
-  reference: "unique_ref_123",
-  redirect_url: "https://yourapp.com/callback",
-  first_name: "Gabriel",
-  last_name: "Okocha",
-  email: "gabby@example.com"
-)
-# Returns: Payment request object with id, hostedLink, and status
-```
-
-#### `cancel_hosted_payment(payment_request_id:)`
-
-Cancel a hosted payment request.
-
-```ruby
-response = client.cancel_hosted_payment(
-  payment_request_id: "payment_request_id"
-)
-# Returns: Cancellation confirmation response
-```
-
-#### `create_customer(first_name:, last_name:, email:, country:)`
-
-Create a new customer profile.
-
-```ruby
-customer = client.create_customer({
-  first_name: "Chinedu",
-  last_name: "Okorie",
-  email: "chinedu@example.com",
-  country: "country_id"
-})
-# Returns: Created customer object with ID
-```
-
-#### `add_payment_method(customer:, payment_method_type:, fields:)`
-
-Add a payment method for an existing customer.
-
-```ruby
-payment_method = client.add_payment_method({
-  customer: "customer_id",
-  payment_method_type: "payment_method_type_id",
-  fields: [
-    { identifier: "", value: "" }
-  ]
-})
-# Returns: Created payment method object
-```
-
-#### `withdraw_onchain(address:, amount_usd:, network:, metadata:)`
-
-Withdraw your current balance as stablecoins to an on-chain wallet address.
-
-```ruby
-response = client.withdraw_onchain(
-  address: "0x...",
-  amount_usd: 100,
-  network: "OP"
-  metadata: { reference: "xyz" }
-)
-# Returns: Withdrawal transaction details
-```
-
-#### `initiate_ramp_quote_deposit(ramp_quote_id:, reference: nil, phone_number: nil, bank_account_number: nil)`
-
-Initiate a deposit transaction using a ramp quote.
-
-```ruby
-response = client.initiate_ramp_quote_deposit(
-  ramp_quote_id: "quote_id",
-  reference: "unique_reference",
-  phone_number: "+233273448978"
-)
-# Returns: Deposit initiation response
-```
-
-#### `mark_deposit_as_paid(payment_request_id:, receipt: nil)`
-
-Mark a deposit as paid by the customer.
-
-```ruby
-response = client.mark_deposit_as_paid(
-  payment_request_id: "payment_request_id",
-  receipt: "https://example.com/receipt.jpg"
-)
-# Returns: Payment confirmation response
-```
-
-#### `cancel_deposit(payment_request_id:)`
-
-Cancel an initiated deposit.
-
-```ruby
-response = client.cancel_deposit(
-  payment_request_id: "payment_request_id"
-)
-# Returns: Cancellation confirmation response
-```
-
-#### `initiate_ramp_quote_withdrawal(ramp_quote_id:, payment_method_id:, reference: nil)`
-
-Initiate a withdrawal transaction using a ramp quote.
-
-```ruby
-response = client.initiate_ramp_quote_withdrawal(
-  ramp_quote_id: "quote_id",
-  payment_method_id: "payment_method_id",
-  reference: "unique_reference"
-)
-# Returns: Withdrawal initiation response
-```
-
-#### `mark_withdrawal_as_received(payment_request_id)`
-
-Mark a withdrawal as received by the customer.
-
-```ruby
-response = client.mark_withdrawal_as_received(
-  payment_request_id: "payment_request_id"
-)
-# Returns: Withdrawal confirmation response
-```
-
-## Advanced Usage
-
-### Custom GraphQL Queries
-
-For advanced use cases, you can send custom GraphQL queries directly:
-
-```ruby
-query = <<-GRAPHQL
-  query GetAvailableCountries {
+query = <<~GRAPHQL
+  query {
     availableCountries {
-      code
+      id
       name
+      code
+      currency {
+        isoCode
+        name
+      }
     }
   }
 GRAPHQL
 
-response = client.send_request(
+response = Cashramp::Client.send_request(
   name: "availableCountries",
   query: query,
-  variables: {}
 )
 
+puts response.result if response.success?
+```
+
+## Error Handling
+
+All methods return a `Cashramp::Client::Response` struct with `success?`, `result`, and `error`:
+
+```ruby
+response = Cashramp::Client.market_rate(country_code: "GH")
+
 if response.success?
-  puts "Available countries: #{response.result}"
+  puts "Deposit rate:    #{response.result["depositRate"]}"
+  puts "Withdrawal rate: #{response.result["withdrawalRate"]}"
 else
-  puts "Error: #{response.error}"
+  warn "Error: #{response.error}"
 end
 ```
 
-### Error Handling
+## Documentation
 
-All SDK methods return a response object with consistent error handling:
-
-```ruby
-response = client.available_countries
-
-if response.success?
-  # Success - access the result
-  countries = response.result
-  puts "Found #{countries.length} countries"
-else
-  # Error - check the error details
-  puts "Error: #{response.error}"
-  # Handle the error appropriately
-end
-```
-
-### Response Object Structure
-
-```ruby
-# Success response
-{
-  success?: true,
-  result: { /* API response data */ },
-  error: nil
-}
-
-# Error response
-{
-  success?: false,
-  result: nil,
-  error: "Error message or details"
-}
-```
-
-## Getting API Credentials
-
-1. Visit [Accrue Commerce](https://cashramp.co/commerce)
-2. Sign up or log in to your account
-3. Navigate to Developer Settings
-4. Generate your API keys
-5. Use the secret key in your application configuration
-
-## Testing
-
-The SDK supports both test and live environments:
-
-```ruby
-# Test environment (default for development)
-client = Cashramp::Client.initialize(env: :test, secret_key: "test_key")
-
-# Live environment (for production)
-client = Cashramp::Client.initialize(env: :live, secret_key: "live_key")
-```
+For detailed API documentation and webhook integration, visit the [Cashramp API docs](https://docs.cashramp.co).
 
 ## Support
 
-- 📚 [API Documentation](https://docs.cashramp.co)
-- 💬 [Support Center](mailto:cashramp@useaccrue.com)
-- 🐛 [Report Issues](https://github.com/rockets-hq/cashramp-sdk-ruby/issues)
-
-### Reporting Issues
-
-Found a bug? Please report it on [GitHub Issues](https://github.com/rockets-hq/cashramp-sdk-ruby/issues) with:
-
-- Ruby version
-- Gem version
-- Steps to reproduce
-- Expected vs actual behavior
+- [API Documentation](https://docs.cashramp.co)
+- [Support](mailto:cashramp@useaccrue.com)
+- [Report Issues](https://github.com/rockets-hq/cashramp-sdk-ruby/issues)
 
 ## License
 

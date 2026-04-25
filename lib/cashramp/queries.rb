@@ -85,7 +85,7 @@ module Cashramp
         GRAPHQL
 
       RAMP_QUOTE = <<~GRAPHQL
-        query ($customer: ID!, $amount: Decimal!, $currency: P2PPaymentCurrency!, $paymentType: PaymentTypeType!, $paymentMethodType: String!, $country: String) {
+        query ($customer: ID!, $amount: Decimal!, $currency: P2PPaymentCurrency!, $paymentType: PaymentTypeType, $paymentMethodType: String!, $country: String) {
           rampQuote(
             customer: $customer,
             amount: $amount,
