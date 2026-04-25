@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.3.0
+
+Bot Agent API support.
+
+### Added
+
+- New "Bot Agent" surface mirroring `CashrampBotSchema` (mounted at `/cashramp/bot/graphql`):
+  - `bot_agent_profile`
+  - `bot_agent_order_history(page:, per_page:, filter:)` — page/perPage pagination (not Relay)
+  - `bot_agent_withdrawal_info(symbol:)`
+  - `accept_bot_agent_withdrawal(payment_request_id:)`
+  - `cancel_bot_agent_withdrawal(payment_request_id:)`
+  - `mark_bot_agent_deposit_received(payment_request_id:)`
+  - `mark_bot_agent_withdrawal_paid(payment_request_id:, payment_method_id:, receipt:)`
+  - `update_bot_agent_rates(deposit_rate:, deposit_margin:, withdrawal_rate:, withdrawal_margin:)` — only provided keys are sent
+  - `update_bot_agent_payment_method_liquidity(amount_local:, payment_method_id:, payment_method_type:)`
+- `send_request` now accepts `endpoint:` (`:merchant` default, or `:bot`) so bot agent calls hit `/cashramp/bot/graphql` while existing merchant calls remain on `/cashramp/api/graphql`.
+- `BOT_API_URLS` constant alongside `API_URLS`.
+
+### Changed
+
+- README adds a Bot Agents usage section and API reference table.
+- Bumped to `0.3.0`.
+
 ## 0.2.0
 
 Parity release with `cashramp-sdk-node` 0.0.13.

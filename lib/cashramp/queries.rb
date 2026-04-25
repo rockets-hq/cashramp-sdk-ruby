@@ -110,6 +110,79 @@ module Cashramp
           }
         }
       GRAPHQL
+
+      # ---------- Bot Agent ----------
+
+      BOT_AGENT_PROFILE = <<~GRAPHQL
+        query {
+          profile {
+            id
+            email
+            accountBalance
+            escrowBalance
+            bonusEarnings
+            depositAddress
+            verificationStatus
+            autoUpdateDepositRate
+            autoUpdateWithdrawalRate
+            creditLine
+            usedCreditLine
+            depositMargin
+            withdrawalMargin
+            averageDepositRate
+            averageWithdrawalRate
+            depositsCompleted
+            withdrawalsCompleted
+            totalDepositFiatAmount
+            totalDepositUsdAmount
+            totalWithdrawalFiatAmount
+            totalWithdrawalUsdAmount
+            enforceReceiptUpload
+            apiKey
+          }
+        }
+      GRAPHQL
+
+      BOT_AGENT_ORDER_HISTORY = <<~GRAPHQL
+        query ($filter: OrderHistoryFilter, $page: Int!, $perPage: Int) {
+          orderHistory(filter: $filter, page: $page, perPage: $perPage) {
+            data {
+              id
+              status
+              paymentType
+              exchangeRate
+              exchangeRateMinusSurcharge
+              orderId
+              source
+              instant
+              createdAt
+              expiresAt
+              expiresAtSecs
+              reassigning
+              reassignAfter
+              reassignAfterSecs
+              agentCutOfFees
+              fxSpreadRevenue
+            }
+            pagination {
+              page
+              perPage
+              total
+            }
+          }
+        }
+      GRAPHQL
+
+      BOT_AGENT_WITHDRAWAL_INFO = <<~GRAPHQL
+        query ($symbol: String!) {
+          withdrawalInfo(symbol: $symbol) {
+            symbol
+            networks
+            addressRegex
+            memoRegex
+          }
+        }
+      GRAPHQL
     end
   end
 end
