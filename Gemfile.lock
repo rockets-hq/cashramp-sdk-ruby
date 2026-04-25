@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cashramp_sdk_ruby (0.2.0)
+    cashramp_sdk_ruby (0.3.0)
       httparty (~> 0.21)
 
 GEM

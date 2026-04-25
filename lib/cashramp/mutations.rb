@@ -128,6 +128,66 @@ module Cashramp
           markWithdrawalAsReceived(paymentRequest: $paymentRequest)
         }
       GRAPHQL
+
+      # ---------- Bot Agent ----------
+
+      BOT_AGENT_ACCEPT_WITHDRAWAL = <<~GRAPHQL
+        mutation ($p2pPayment: ID!) {
+          acceptWithdrawal(p2pPayment: $p2pPayment)
+        }
+      GRAPHQL
+
+      BOT_AGENT_CANCEL_WITHDRAWAL = <<~GRAPHQL
+        mutation ($p2pPayment: ID!) {
+          cancelWithdrawal(p2pPayment: $p2pPayment)
+        }
+      GRAPHQL
+
+      BOT_AGENT_MARK_DEPOSIT_AS_RECEIVED = <<~GRAPHQL
+        mutation ($p2pPayment: ID!) {
+          markDepositAsReceived(p2pPayment: $p2pPayment)
+        }
+      GRAPHQL
+
+      BOT_AGENT_MARK_WITHDRAWAL_AS_PAID = <<~GRAPHQL
+        mutation ($p2pPayment: ID!, $paymentMethod: ID!, $receipt: String) {
+          markWithdrawalAsPaid(
+            p2pPayment: $p2pPayment,
+            paymentMethod: $paymentMethod,
+            receipt: $receipt
+          )
+        }
+      GRAPHQL
+
+      BOT_AGENT_UPDATE_RATES = <<~GRAPHQL
+        mutation ($depositRate: Decimal, $depositMargin: Decimal, $withdrawalRate: Decimal, $withdrawalMargin: Decimal) {
+          updateRates(
+            depositRate: $depositRate,
+            depositMargin: $depositMargin,
+            withdrawalRate: $withdrawalRate,
+            withdrawalMargin: $withdrawalMargin
+          )
+        }
+      GRAPHQL
+
+      BOT_AGENT_UPDATE_PAYMENT_METHOD_LIQUIDITY = <<~GRAPHQL
+        mutation ($paymentMethod: ID, $paymentMethodType: String, $amountLocal: Decimal!) {
+          updatePaymentMethodLiquidity(
+            paymentMethod: $paymentMethod,
+            paymentMethodType: $paymentMethodType,
+            amountLocal: $amountLocal
+          ) {
+            id
+            value
+            displayValue
+            localCurrencyAvailable
+            deleted
+            ownership
+            designation
+            instant
+          }
+        }
+      GRAPHQL
     end
   end
 end

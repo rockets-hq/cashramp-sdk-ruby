@@ -10,6 +10,11 @@ module Cashramp
         test: "https://staging.api.useaccrue.com/cashramp/api/graphql",
       }.freeze
 
+      BOT_API_URLS = {
+        live: "https://api.useaccrue.com/cashramp/bot/graphql",
+        test: "https://staging.api.useaccrue.com/cashramp/bot/graphql",
+      }.freeze
+
       Response = Struct.new(:success?, :result, :error)
 
       def initialize(env: nil, secret_key: nil)
@@ -284,14 +289,143 @@ module Cashramp
         )
       end
 
+      # ------- BOT AGENT -------
+
+      # Fetch the authenticated bot agent's profile
+      # @return [Response] result is the agent profile hash
+      def bot_agent_profile
+        send_request(
+          name: "profile",
+          query: Queries::BOT_AGENT_PROFILE,
+          endpoint: :bot,
+        )
+      end
+
+      # Fetch the bot agent's order history (page/perPage pagination)
+      # @param [Integer] page 1-indexed page number
+      # @param [Integer] per_page Optional results per page (defaults to API default of 10)
+      # @param [Hash] filter Optional filter ({ orderId:, status:, dateFrom:, dateTo:, paymentMethod: })
+      # @return [Response] result is { "data" => [..], "pagination" => { ... } }
+      def bot_agent_order_history(page:, per_page: nil, filter: nil)
+        send_request(
+          name: "orderHistory",
+          query: Queries::BOT_AGENT_ORDER_HISTORY,
+          variables: {
+            page: page,
+            perPage: per_page,
+            filter: filter,
+          }.compact,
+          endpoint: :bot,
+        )
+      end
+
+      # Fetch withdrawal info (networks, regexes) for a crypto symbol
+      # @param [String] symbol Crypto symbol (e.g. "USDC")
+      def bot_agent_withdrawal_info(symbol:)
+        send_request(
+          name: "withdrawalInfo",
+          query: Queries::BOT_AGENT_WITHDRAWAL_INFO,
+          variables: { symbol: symbol },
+          endpoint: :bot,
+        )
+      end
+
+      # Accept an assigned withdrawal request as a bot agent
+      # @param [String] payment_request_id P2P payment global ID
+      def accept_bot_agent_withdrawal(payment_request_id:)
+        send_request(
+          name: "acceptWithdrawal",
+          query: Mutations::BOT_AGENT_ACCEPT_WITHDRAWAL,
+          variables: { p2pPayment: payment_request_id },
+          endpoint: :bot,
+        )
+      end
+
+      # Cancel/decline an assigned withdrawal request as a bot agent
+      # @param [String] payment_request_id P2P payment global ID
+      def cancel_bot_agent_withdrawal(payment_request_id:)
+        send_request(
+          name: "cancelWithdrawal",
+          query: Mutations::BOT_AGENT_CANCEL_WITHDRAWAL,
+          variables: { p2pPayment: payment_request_id },
+          endpoint: :bot,
+        )
+      end
+
+      # Acknowledge receipt of customer fiat for a deposit leg as a bot agent
+      # @param [String] payment_request_id P2P payment global ID
+      def mark_bot_agent_deposit_received(payment_request_id:)
+        send_request(
+          name: "markDepositAsReceived",
+          query: Mutations::BOT_AGENT_MARK_DEPOSIT_AS_RECEIVED,
+          variables: { p2pPayment: payment_request_id },
+          endpoint: :bot,
+        )
+      end
+
+      # Acknowledge sending fiat for a withdrawal leg as a bot agent
+      # @param [String] payment_request_id P2P payment global ID
+      # @param [String] payment_method_id Payment method global ID the agent paid from
+      # @param [String] receipt Optional receipt string
+      def mark_bot_agent_withdrawal_paid(payment_request_id:, payment_method_id:, receipt: nil)
+        send_request(
+          name: "markWithdrawalAsPaid",
+          query: Mutations::BOT_AGENT_MARK_WITHDRAWAL_AS_PAID,
+          variables: {
+            p2pPayment: payment_request_id,
+            paymentMethod: payment_method_id,
+            receipt: receipt,
+          }.compact,
+          endpoint: :bot,
+        )
+      end
+
+      # Update bot agent rates and margins. Only provided keys are sent.
+      # @param [Numeric, String] deposit_rate
+      # @param [Numeric, String] deposit_margin
+      # @param [Numeric, String] withdrawal_rate
+      # @param [Numeric, String] withdrawal_margin
+      def update_bot_agent_rates(deposit_rate: nil, deposit_margin: nil, withdrawal_rate: nil, withdrawal_margin: nil)
+        send_request(
+          name: "updateRates",
+          query: Mutations::BOT_AGENT_UPDATE_RATES,
+          variables: {
+            depositRate: deposit_rate,
+            depositMargin: deposit_margin,
+            withdrawalRate: withdrawal_rate,
+            withdrawalMargin: withdrawal_margin,
+          }.compact,
+          endpoint: :bot,
+        )
+      end
+
+      # Set the local-currency liquidity available for a bot agent payment method
+      # @param [Numeric, String] amount_local Required local-currency amount
+      # @param [String] payment_method_id Optional existing P2PPaymentMethod global ID
+      # @param [String] payment_method_type Optional payment method type identifier
+      def update_bot_agent_payment_method_liquidity(amount_local:, payment_method_id: nil, payment_method_type: nil)
+        send_request(
+          name: "updatePaymentMethodLiquidity",
+          query: Mutations::BOT_AGENT_UPDATE_PAYMENT_METHOD_LIQUIDITY,
+          variables: {
+            amountLocal: amount_local,
+            paymentMethod: payment_method_id,
+            paymentMethodType: payment_method_type,
+          }.compact,
+          endpoint: :bot,
+        )
+      end
+
       # Query the Cashramp API directly
       # @param [String] name Name of the GraphQL operation
       # @param [String] query GraphQL query or mutation string
       # @param [Hash] variables The GraphQL query variables
+      # @param [Symbol] endpoint Which Cashramp schema to target (:merchant or :bot). Defaults to :merchant.
       # @return [Response] Response object with success status, result data, or error message
-      def send_request(name:, query:, variables: {})
+      def send_request(name:, query:, variables: {}, endpoint: :merchant)
+        url = endpoint == :bot ? @bot_endpoint : @endpoint
         response = HTTParty.post(
-          @endpoint,
+          url,
           body: {
             query: query,
             variables: variables,
@@ -333,6 +467,7 @@ module Cashramp
 
       def setup
         @endpoint = API_URLS[@env]
+        @bot_endpoint = BOT_API_URLS[@env]
       end
     end
   end
