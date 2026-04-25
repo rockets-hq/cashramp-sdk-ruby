@@ -1,7 +1,8 @@
 PATH
   remote: .
   specs:
-    cashramp_sdk_ruby (0.1.1)
+    cashramp_sdk_ruby (0.2.0)
+      httparty (~> 0.21)
 
 GEM
   remote: https://rubygems.org/
@@ -44,7 +45,6 @@ GEM
 
 PLATFORMS
   arm64-darwin-24
-  arm64-darwin-25
   x86_64-linux
 
 DEPENDENCIES

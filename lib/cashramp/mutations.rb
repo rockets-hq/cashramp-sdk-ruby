@@ -8,7 +8,7 @@ module Cashramp
       GRAPHQL
 
       INITIATE_HOSTED_PAYMENT = <<~GRAPHQL
-        mutation ($amount: Decimal!, $currency: P2PPaymentCurrency, $countryCode: String!, $email: String!, $paymentType: P2PPaymentTypeType!, $reference: String!, $firstName: String!, $lastName: String!, $redirectUrl: String) {
+        mutation ($amount: Decimal!, $currency: P2PPaymentCurrency, $countryCode: String!, $email: String!, $paymentType: P2PPaymentTypeType!, $reference: String!, $firstName: String!, $lastName: String!, $redirectUrl: String, $metadata: JSON) {
           initiateHostedPayment(
             amount: $amount,
             currency: $currency,
@@ -18,12 +18,13 @@ module Cashramp
             reference: $reference,
             firstName: $firstName,
             lastName: $lastName,
-            redirectUrl: $redirectUrl
+            redirectUrl: $redirectUrl,
+            metadata: $metadata
           ) {
-              id
-              hostedLink
-              status
-            }
+            id
+            hostedLink
+            status
+          }
         }
       GRAPHQL
 
@@ -50,8 +51,8 @@ module Cashramp
       GRAPHQL
 
       ADD_PAYMENT_METHOD = <<~GRAPHQL
-        mutation ($customer: ID!, $paymentMethodType: ID!, $fields: [P2PPaymentMethodFieldInput!]!) {
-          addPaymentMethod(customer: $customer, p2pPaymentMethodType: $paymentMethodType, fields: $fields) {
+        mutation ($customer: ID!, $paymentMethodType: String!, $fields: [P2PPaymentMethodFieldInput!]!, $ownership: P2PPaymentMethodOwnership) {
+          addPaymentMethod(customer: $customer, paymentMethodType: $paymentMethodType, fields: $fields, ownership: $ownership) {
             id
             value
             fields {
@@ -72,12 +73,13 @@ module Cashramp
       GRAPHQL
 
       INITIATE_RAMP_QUOTE_DEPOSIT = <<~GRAPHQL
-        mutation ($rampQuote: ID!, $reference: String, $phoneNumber: String, $bankAccountNumber: String) {
+        mutation ($rampQuote: ID!, $reference: String, $phoneNumber: String, $bankAccountNumber: String, $onchainTransferInfo: OnchainTransferInfo) {
           initiateRampQuoteDeposit(
             rampQuote: $rampQuote,
             reference: $reference,
             phoneNumber: $phoneNumber,
-            bankAccountNumber: $bankAccountNumber
+            bankAccountNumber: $bankAccountNumber,
+            onchainTransferInfo: $onchainTransferInfo
           ) {
             id
             status
