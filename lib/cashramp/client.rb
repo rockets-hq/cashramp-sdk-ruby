@@ -98,6 +98,7 @@ module Cashramp
       # Fetch the details of an account
       # @return [Response] Response object with success status and result containing account details
       # @return [Hash] result.account Object with id, accountBalance, and depositAddress
+      #   (depositAddress is nil until an onchain deposit address has been provisioned)
       def account
         send_request(
           name: "account",
